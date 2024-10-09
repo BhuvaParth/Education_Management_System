@@ -1,29 +1,29 @@
 {
-    "posts": [
+    "adminData": [
         {
             "id": "1",
-            "title": "a title",
-            "views": 100
-        },
-        {
-            "id": "2",
-            "title": "another title",
-            "views": 200
+            "name": "admin",
+            "email": "admin@gmail.com",
+            "password": "123456",
+            "type": "admin"
         }
     ],
-    "comments": [
+    "teacherData": [
+        {
+            "id": "hdy",
+            "name": "teacher",
+            "email": "teacher@gmail.com",
+            "password": "123456",
+            "type": "teacher"
+        }
+    ],
+    "studentData": [
         {
             "id": "1",
-            "text": "a comment about post 1",
-            "postId": "1"
-        },
-        {
-            "id": "2",
-            "text": "another comment about post 1",
-            "postId": "1"
+            "name": "student",
+            "email": "student@gmail.com",
+            "password": "123456",
+            "type": "student"
         }
-    ],
-    "profile": {
-        "name": "typicode"
-    }
+    ]
 }
