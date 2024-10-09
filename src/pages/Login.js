@@ -1,110 +1,132 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "../componets/AuthProvider ";
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const validate = () => {
-    const newErrors = {};
+  const validateForm = () => {
+    const errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^.{6,}$/; 
 
-    if (!email) {
-      newErrors.email = 'Email is required';
+    if (!email.trim()) {
+      errors.email = "Email is required";
     } else if (!emailRegex.test(email)) {
-      newErrors.email = 'Enter a valid email';
+      errors.email = "Invalid email format";
     }
 
-    if (!password) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    if (!password.trim()) {
+      errors.password = "Password is required";
+    } else if (!passwordRegex.test(password)) {
+      errors.password = "Password must be at least 6 characters long";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validate()) {
-      alert('Form submitted successfully');
+  const handleSubmit = () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    const userdata = {
+      email,
+      password,
+    };
+
+    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+    const user = storedUsers.find(
+      (user) =>
+        user.email === userdata.email && user.password === userdata.password
+    );
+
+    if (user) {
+      const token = "mock-token";
+      login(token);
+      toast.success("Login successful!");
+
+      switch (user.role) {
+        case "admin":
+          setTimeout(() => navigate("/admin"), 2000);
+          break;
+        case "student":
+          setTimeout(() => navigate("/student"), 2000);
+          break;
+        case "teacher":
+          setTimeout(() => navigate("/teacher"), 2000);
+          break;
+        default:
+          setTimeout(() => navigate("/"), 2000);
+          break;
+      }
+    } else {
+      toast.error("Invalid email or password");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+      <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <ToastContainer />
+        <h4 className="text-center text-2xl font-bold mb-4">Login Page</h4>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Email</label>
+          <input
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            className={`w-full p-2 border text-black ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } rounded-md focus:outline-none focus:ring focus:ring-blue-500`}
+          />
+          {errors.email && (
+            <div className="text-red-500 text-sm mt-1">{errors.email}</div>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Password</label>
+          <input
+            onChange={(e) => setPassword(e.target.value)}
+            type="password"
+            className={`w-full p-2 border text-black ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            } rounded-md focus:outline-none focus:ring focus:ring-blue-500`}
+          />
+          {errors.password && (
+            <div className="text-red-500 text-sm mt-1">{errors.password}</div>
+          )}
+        </div>
+
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded"
+        >
+          Login
+        </button>
+
+        <div className="mt-3 text-center">
+          <p>
+            Do not have an account?{" "}
+            <button
+              className="text-blue-500 hover:underline"
+              onClick={() => navigate("/signup")}
             >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={`mt-1 block w-full border ${
-                errors.email
-                  ? 'border-red-500'
-                  : 'border-gray-300'
-              } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              placeholder="Enter your email"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
-
-          <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`mt-1 block w-full border ${
-                errors.password
-                  ? 'border-red-500'
-                  : 'border-gray-300'
-              } rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              placeholder="Enter your password"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Submit
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-blue-500 hover:underline">
-            Sign Up
-          </Link>
-        </p>
+              Sign Up
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default Login;

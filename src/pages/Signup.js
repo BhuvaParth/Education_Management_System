@@ -1,182 +1,175 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useAuth } from "../componets/AuthProvider ";
 
-function Signup() {
+const Signup = () => {
+  const { setUsers } = useAuth();
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
-    loginType: "",
+    role: "student",
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  const validate = () => {
-    let errors = {};
+  const validateForm = () => {
+    const errors = {};
+    const nameRegex = /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^.{6,}$/;
 
-    if (!formData.username) {
-      errors.username = "Username is required";
+    if (!formData.name.trim()) {
+      errors.name = "Name is required";
+    } else if (!nameRegex.test(formData.name)) {
+      errors.name = "Invalid name format";
     }
 
-    if (!formData.email) {
+    if (!formData.email.trim()) {
       errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Email is invalid";
+    } else if (!emailRegex.test(formData.email)) {
+      errors.email = "Invalid email format";
     }
 
-    if (!formData.password) {
+    if (!formData.password.trim()) {
       errors.password = "Password is required";
-    }
-
-    if (!formData.loginType) {
-      errors.loginType = "Login type is required";
+    } else if (!passwordRegex.test(formData.password)) {
+      errors.password = "Password must be at least 6 characters long";
     }
 
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validate()) {
-      const newUserData = {
-        name: formData.username,
-        email: formData.email,
-        password: formData.password,
-        type: formData.loginType,
-      };
-
-      let url = "";
-      if (formData.loginType === "admin") {
-        url = "http://localhost:4000/adminData";
-      } else if (formData.loginType === "teacher") {
-        url = "http://localhost:4000/teacherData";
-      } else if (formData.loginType === "student") {
-        url = "http://localhost:4000/studentData";
-      }
-
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newUserData),
-        });
-
-        if (response.ok) {
-          console.log("User data saved successfully.");
-          navigate("/login"); 
-        } else {
-          console.error("Failed to save user data.");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    }
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+
+    const { name, email, password, role } = formData;
+    const userData = { name, email, password, role };
+    const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
+    existingUsers.push(userData);
+    localStorage.setItem("users", JSON.stringify(existingUsers));
+    setUsers(existingUsers);
+
+    toast.success("Registration successful");
+    navigate("/login");
   };
 
   return (
-    <>
-      <div className="flex justify-center items-center h-screen">
-        <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-          <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your username"
-              />
-              {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+      <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <h2 className="text-center text-2xl font-bold mb-6">
+          Registration Form
+        </h2>
+        {errors.general && (
+          <div className="bg-red-500 text-white p-2 rounded mb-4">
+            {errors.general}
+          </div>
+        )}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="name" className="block text-sm font-medium mb-1">
+              Name:
+            </label>
+            <input
+              type="text"
+              name="name"
+              className={`w-full p-2 text-black border ${
+                errors.name ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring focus:ring-blue-500`}
+              value={formData.name}
+              onChange={handleChange}
+            />
+            {errors.name && (
+              <div className="text-red-500 text-sm mt-1">{errors.name}</div>
+            )}
+          </div>
 
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your email"
-              />
-              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-            </div>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
+              Email:
+            </label>
+            <input
+              type="email"
+              name="email"
+              className={`w-full p-2 border text-black ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring focus:ring-blue-500`}
+              value={formData.email}
+              onChange={handleChange}
+            />
+            {errors.email && (
+              <div className="text-red-500 text-sm mt-1">{errors.email}</div>
+            )}
+          </div>
 
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your password"
-              />
-              {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-            </div>
-
-            <div className="mb-6">
-              <label htmlFor="loginType" className="block text-sm font-medium text-gray-700">
-                Login Type
-              </label>
-              <select
-                id="loginType"
-                name="loginType"
-                value={formData.loginType}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="" disabled>
-                  Select login type
-                </option>
-                <option value="admin">Admin</option>
-                <option value="teacher">Teacher</option>
-                <option value="student">Student</option>
-              </select>
-              {errors.loginType && <p className="text-red-500 text-sm">{errors.loginType}</p>}
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <div className="mb-4">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium mb-1"
             >
-              Submit
-            </button>
-          </form>
+              Password:
+            </label>
+            <input
+              type="password"
+              name="password"
+              className={`w-full p-2 border text-black ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring focus:ring-blue-500`}
+              value={formData.password}
+              onChange={handleChange}
+            />
+            {errors.password && (
+              <div className="text-red-500 text-sm mt-1">{errors.password}</div>
+            )}
+          </div>
 
-          <p className="mt-4 text-center text-sm text-gray-600">
+          <div className="mb-4">
+            <label htmlFor="role" className="block text-sm font-medium mb-1">
+              Role:
+            </label>
+            <select
+              name="role"
+              className="w-full p-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+              value={formData.role}
+              onChange={handleChange}
+            >
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded"
+          >
+            Submit
+          </button>
+        </form>
+        <div className="mt-3 text-center">
+          <p>
             Already have an account?{" "}
-            <a href="/login" className="text-blue-500 hover:underline">
-              Login
-            </a>
+            <button
+              className="text-blue-500 hover:underline"
+              onClick={() => navigate("/login")}
+            >
+              Log In
+            </button>
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default Signup;
