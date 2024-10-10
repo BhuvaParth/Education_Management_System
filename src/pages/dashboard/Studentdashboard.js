@@ -39,7 +39,6 @@ export default function StudentDashboard() {
         Student Dashboard
       </h1>
 
-      <h2 className="text-xl font-bold mb-2">Available Courses</h2>
       <ul className="mb-4">
         {courses.map((course, index) => (
           <li key={index} className="flex justify-between py-2">

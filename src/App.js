@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter as Router,
   Route,
@@ -14,34 +15,35 @@ import TeacherDashboard from "./pages/dashboard/Teacherdashboard";
 import StudentDashboard from "./pages/dashboard/Studentdashboard";
 import AddCourse from "./componets/AddCourse";
 import EditCourse from "./componets/EditCourse";
-import Headers from "./componets/Header";
+import Header from "./componets/Header";
 import { AuthProvider } from "./componets/AuthProvider ";
-
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); 
 
-  const handleLogin = () => {
+  const handleLogin = (role) => {
     setIsAuthenticated(true);
+    setIsAdmin(role === "admin");
   };
 
   return (
     <Router>
       <AuthProvider>
-        <AppRoutes isAuthenticated={isAuthenticated} onLogin={handleLogin} />
+        <AppRoutes isAuthenticated={isAuthenticated} onLogin={handleLogin} isAdmin={isAdmin} />
       </AuthProvider>
     </Router>
   );
 }
 
-function AppRoutes({ isAuthenticated, onLogin }) {
+function AppRoutes({ isAuthenticated, onLogin, isAdmin }) {
   const location = useLocation();
 
   const shouldShowHeader = !["/login", "/signup"].includes(location.pathname);
 
   return (
     <>
-      {shouldShowHeader && <Headers />}
+      {shouldShowHeader && <Header isAdmin={isAdmin} />} {/* Pass isAdmin to Header */}
       <Routes>
         <Route
           path="/"

@@ -112,8 +112,8 @@ export default function AddCourse() {
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Create a New Course</h1>
-      {success && <p className="text-green-500">Course created successfully!</p>}
+      <h1 className="text-2xl font-bold mb-4 text-gray-800">Add Course</h1>
+      {success && <p className="text-green-500">Course added successfully!</p>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Student Name:</label>

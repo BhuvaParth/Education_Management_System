@@ -14,7 +14,7 @@ const Login = () => {
   const validateForm = () => {
     const errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^.{6,}$/; 
+    const passwordRegex = /^.{6,}$/;
 
     if (!email.trim()) {
       errors.email = "Email is required";
@@ -50,7 +50,12 @@ const Login = () => {
 
     if (user) {
       const token = "mock-token";
-      login(token);
+      const userData = {
+        email: user.email,
+        role: user.role,
+      };
+
+      login(token, userData);
       toast.success("Login successful!");
 
       switch (user.role) {

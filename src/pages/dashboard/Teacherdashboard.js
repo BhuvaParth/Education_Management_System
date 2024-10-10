@@ -12,7 +12,6 @@ export default function TeacherDashboard() {
     <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">Teacher Dashboard</h1>
 
-      <h2 className="text-xl font-bold mb-2">Assigned Courses</h2>
       <table className="min-w-full bg-white border border-gray-300 mb-4">
         <thead>
           <tr className="bg-gray-200">
