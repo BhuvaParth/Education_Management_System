@@ -27,19 +27,12 @@ The Education Management System is a web application designed to manage educatio
 - **Styling**: Tailwind CSS
 - **Data Storage**: Local Storage
 
-## Getting Started
-
-To get started with the Blog App, follow these steps:
-
 ### Prerequisites
 
 - Node.js (v12 or above)
 - npm (Node Package Manager)
 
 ## Installation
-
-  ### Go to Frontend folder and enter this commands
-   #### Please Check must be your localhost:3001 for frontend
 
   ``` bash
    npm install
